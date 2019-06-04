@@ -20,3 +20,9 @@ You must have the google authenticator token as the first line in a file
 called `.google_authenticator` in your home directory.
 
 The executable is installed as 'otpwidget', and will launch a tkinter window.
+
+Clicking on the OTP code will copy it to the clipboard.  
+
+Pressing `q` will copy the OTP code to the clipboard and quit.
+
+Pressing `esc` will quit _without_ copying the OTP code to the clipboard.

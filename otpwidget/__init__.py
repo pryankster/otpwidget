@@ -1,28 +1,40 @@
-from Tkinter import *
-import ttk
+from __future__ import print_function
+try:
+    from tkinter import *
+    import tkinter.ttk as ttk
+    import tkinter.messagebox as messagebox
+except ImportError:
+    from Tkinter import *
+    import ttk
+    import tkMessageBox as messagebox
+
 import pyperclip
 from threading import Thread
 import pyotp
 import time, datetime
 
-bgColor = "#444444";
+bgColor = "#444444"
 textColors = [ "#CC2222", "#CCCC00", "#CCCCCC" ]
 hiColors = [ "#CC4444", "#EEEE00", "#EEEEEE" ]
-barColor = "#CCCCCC";
+barColor = "#CCCCCC"
 
 class OTPWidget(Frame):
 
     def copy_otp(self):
         s = self.text.get()
-        print "Copy %s" % (s,)
+        print("Copy %s" % (s,))
         pyperclip.copy(s)
+
+    def quit(self,e):
+        self.copy_otp()
+        sys.exit(0)
 
     def update(self):
         mod = int(30-(time.mktime(datetime.datetime.now().timetuple()) % 30));
         if mod == 30 or self.code is None:
             otp = pyotp.TOTP(self.key)
             self.code = "%6.6s" % otp.now()
-            print "update code: %s" % (self.code,)
+            print("update code: %s" % (self.code,))
             self.text.set(self.code)
         if mod < 5:
             self.otp["style"] = "alarm.TButton"
@@ -32,12 +44,11 @@ class OTPWidget(Frame):
             self.otp["style"] = "flat.TButton"
 
         self.bar["value"] = mod
-        print "Set to %s (%d)" % (self.code,mod)
+        print("Set to %s (%d)" % (self.code, mod))
         self.bar.after(1000,self.update)
 
     def createWidgets(self):
         self.text = StringVar();
-
 
         self.otp = ttk.Button(self, 
                         textvar = self.text,
@@ -66,7 +77,6 @@ class OTPWidget(Frame):
 
 def __main__():
     import os
-    import tkMessageBox
 
     root = Tk()
     root.resizable(0,0)
@@ -130,21 +140,23 @@ def __main__():
     authfile = os.path.expanduser("~/.google_authenticator")
     
     try:
-        key = open(authfile,"rb").readline().strip()
-    except IOError, e:
+        key = open(authfile,"r").readline().strip()
+    except IOError as e:
         root.withdraw();
-        tkMessageBox.showerror( "Error", "Failed to open %s: %s" % ( authfile, str(e)) )
+        messagebox.showerror( "Error", "Failed to open %s:\n%s" % (authfile, str(e)))
         sys.exit(1)
 
     app = OTPWidget(master=root, key=key)
+    root.bind_all("q", app.quit)
+    root.bind_all("<Escape>", lambda x: sys.exit(0))
     try:
         app.mainloop()
-    except KeyboardInterrupt, e:
-        print "^C"
+    except KeyboardInterrupt as e:
+        print("^C")
 
     try:
         root.destroy()
-    except TclError, e:
+    except TclError as e:
         s = str(e)
         if not "has been destroyed" in s:
-            print s
+            print(s)
