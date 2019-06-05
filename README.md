@@ -11,6 +11,7 @@ requirements.txt file for setup.
 
 ## Installation
 
+    % python -m ensurepip
     % pip install -r requirements.txt
     % pip install .
 
